@@ -514,11 +514,11 @@ local greencard
 local bluecard
 for _, v in pairs(workspace:GetDescendants()) do
 	if v.Name == "Card" then
-		if v.MeshId == "rbxassetid://140693729632443" then
+		if v.TextureID == "rbxassetid://140693729632443" then
 			redcard = v
-		elseif v.MeshId == "rbxassetid://98759411840543" then
+		elseif v.TextureID == "rbxassetid://98759411840543" then
 			bluecard = v
-		elseif v.MeshId == "rbxassetid://88504865884075" then
+		elseif v.TextureID == "rbxassetid://88504865884075" then
 			greencard = v
 		end
 	end
