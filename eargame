@@ -1,0 +1,590 @@
+local Players = game:GetService("Players")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local StarterGui = game:GetService("StarterGui")
+
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local UIS = game:GetService("UserInputService")
+
+local ScrapCount = 0
+--// GUI
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "VieteHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.fromOffset(188, 255)
+MainFrame.Position = UDim2.new(0.572463751, 0, 0.197149649, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.3
+MainFrame.BorderSizePixel = 0
+local MainCorner = Instance.new("UICorner")
+MainCorner.Parent = MainFrame
+MainFrame.Draggable = true
+
+--// Title
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.Draggable = true
+
+Title.Size = UDim2.fromOffset(188, 27)
+Title.BackgroundTransparency = 1
+
+Title.Font = Enum.Font.FredokaOne
+Title.Text = "Viete Hub"
+Title.TextScaled = true
+
+Title.TextColor3 = Color3.new(1, 1, 1)
+
+local TitleGradient = Instance.new("UIGradient")
+TitleGradient.Rotation = 0
+
+TitleGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(238, 1, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(106, 6, 134))
+})
+
+--// NOTIFY HAHAHAHHAHAHAHAHAHAHHA
+
+local function Notify(title, text, duration)
+	pcall(function()
+		StarterGui:SetCore("SendNotification", {
+			Title = title,
+			Text = text,
+			Duration = duration or 3
+		})
+	end)
+end
+
+
+TitleGradient.Parent = Title
+--// ScrollingFrame
+
+local ScrollingFrame = Instance.new("ScrollingFrame")
+ScrollingFrame.Name = "ScrollingFrame"
+ScrollingFrame.Parent = MainFrame
+
+ScrollingFrame.Size = UDim2.fromOffset(188, 211)
+ScrollingFrame.Position = UDim2.new(0, 0, 0.168627486, 0)
+
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.BorderSizePixel = 0
+
+ScrollingFrame.ScrollBarThickness = 12
+ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+--// Layout
+
+local Layout = Instance.new("UIListLayout")
+Layout.Parent = ScrollingFrame
+
+Layout.FillDirection = Enum.FillDirection.Vertical
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+Layout.Padding = UDim.new(0, 4)
+
+--// Button creator
+
+local function CreateButton(name, callback)
+	local Button = Instance.new("TextButton")
+	Button.Name = name
+	Button.Parent = ScrollingFrame
+
+	Button.Size = UDim2.fromOffset(145, 30)
+
+	Button.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+	Button.BorderSizePixel = 0
+
+	Button.Font = Enum.Font.SourceSans
+	Button.Text = name
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.TextSize = 17
+
+	local Corner = Instance.new("UICorner")
+	Corner.Parent = Button
+
+	if callback then
+		Button.MouseButton1Click:Connect(callback)
+	end
+
+	return Button
+end
+
+--// Toggle creator
+
+local function CreateToggle(name, default, callback)
+	local State = default or false
+
+	local Frame = Instance.new("Frame")
+	Frame.Name = name
+	Frame.Parent = ScrollingFrame
+
+	Frame.Size = UDim2.fromOffset(145, 30)
+
+	Frame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+	Frame.BorderSizePixel = 0
+
+	local Corner = Instance.new("UICorner")
+	Corner.Parent = Frame
+
+	local Stroke = Instance.new("UIStroke")
+	Stroke.Parent = Frame
+
+	Stroke.Thickness = 1.5
+	Stroke.Color = Color3.fromRGB(90, 90, 90)
+
+	local Button = Instance.new("TextButton")
+	Button.Parent = Frame
+
+	Button.Size = UDim2.fromScale(1, 1)
+
+	Button.BackgroundTransparency = 1
+
+	Button.Font = Enum.Font.SourceSans
+	Button.TextSize = 17
+
+	local function Update()
+		if State then
+			Stroke.Color = Color3.fromRGB(0, 255, 127)
+			Button.TextColor3 = Color3.fromRGB(0, 255, 127)
+			Button.Text = name .. " ACTIVE"
+		else
+			Stroke.Color = Color3.fromRGB(90, 90, 90)
+			Button.TextColor3 = Color3.new(1, 1, 1)
+			Button.Text = name
+		end
+	end
+
+	Button.MouseButton1Click:Connect(function()
+		State = not State
+
+		Update()
+
+		if callback then
+			callback(State)
+		end
+	end)
+
+	Update()
+
+	return {
+		Get = function()
+			return State
+		end,
+
+		Set = function(value)
+			State = value
+			Update()
+
+			if callback then
+				callback(State)
+			end
+		end,
+
+		Button = Button,
+		Frame = Frame
+	}
+end
+
+--// Textbox Creator
+local function CreateTextBox(name, callback)
+	local Frame = Instance.new("Frame")
+	Frame.Name = name
+	Frame.Parent = ScrollingFrame
+
+	Frame.Size = UDim2.fromOffset(145, 30)
+	Frame.BackgroundTransparency = 1
+
+	local Button = Instance.new("TextButton")
+	Button.Parent = Frame
+	Button.Size = UDim2.new(2/3, -2, 1, 0)
+	Button.Position = UDim2.new(0, 0, 0, 0)
+
+	Button.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+	Button.BorderSizePixel = 0
+
+	Button.Font = Enum.Font.SourceSans
+	Button.Text = "  " .. name -- chừa khoảng trống bên trái
+	Button.TextXAlignment = Enum.TextXAlignment.Left
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.TextSize = 17
+
+	local ButtonCorner = Instance.new("UICorner")
+	ButtonCorner.Parent = Button
+
+	local TextBox = Instance.new("TextBox")
+	TextBox.Parent = Frame
+	TextBox.Size = UDim2.new(1/3, -2, 1, 0)
+	TextBox.Position = UDim2.new(2/3, 2, 0, 0)
+
+	TextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	TextBox.BorderSizePixel = 0
+	TextBox.TextColor3 = Color3.new(1, 1, 1)
+	TextBox.PlaceholderText = "enter..."
+	TextBox.TextScaled = true
+
+	local TextBoxCorner = Instance.new("UICorner")
+	TextBoxCorner.Parent = TextBox
+
+	if callback then
+		Button.MouseButton1Click:Connect(function()
+			callback(TextBox.Text)
+		end)
+	end
+
+	return Button, TextBox
+end
+
+--// Function
+
+local function removePromptCooldown()
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("ProximityPrompt") then
+			v.HoldDuration = 0
+			v.MaxActivationDistance = math.max(v.MaxActivationDistance, 20)
+		end
+	end
+end
+workspace.DescendantAdded:Connect(function(obj)
+	if obj:IsA("ProximityPrompt") then
+		obj.HoldDuration = 0
+	end
+end)
+
+local function tp(cf)
+	local char = Player.Character
+	if not char then return end
+
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if hrp then
+		hrp.CFrame = cf
+	end
+end
+local function firePrompt(prompt)
+	if not prompt then return end
+
+	pcall(function()
+		fireproximityprompt(prompt)
+	end)
+
+	-- fallback nếu executor không có fireproximityprompt
+	pcall(function()
+		ProximityPromptService:InputHoldBegin(prompt)
+		task.wait()
+		ProximityPromptService:InputHoldEnd(prompt)
+	end)
+end
+
+local function getNearbyPrompt(part)
+	local closest
+	local distance = math.huge
+
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("ProximityPrompt") and v.Parent:IsA("BasePart") then
+			local d = (v.Parent.Position - part.Position).Magnitude
+
+			if d < distance and d <= 15 then
+				distance = d
+				closest = v
+			end
+		end
+	end
+
+	return closest
+end
+
+local running = false
+local function collectScraps()
+	local scrapsFolder = workspace:FindFirstChild("Scraps")
+
+	if not scrapsFolder then
+		warn("Không tìm thấy folder Scraps")
+		return
+	end
+
+	for _, item in ipairs(scrapsFolder:GetChildren()) do
+		if not running then return end
+
+		if item:IsA("BasePart") then
+			tp(item.CFrame + Vector3.new(0, 3, 0))
+
+			task.wait(0.2)
+
+			local prompt = item:FindFirstChildWhichIsA("ProximityPrompt", true)
+				or getNearbyPrompt(item)
+
+			if prompt then
+				firePrompt(prompt)
+				ScrapCount += 1
+			end
+
+			task.wait(0.1)
+		end
+	end
+end
+
+local function recycleTools()
+	local recycler = workspace:FindFirstChild("Recycle item", true)
+
+	if not recycler or not recycler:IsA("BasePart") then
+		return
+	end
+
+	tp(recycler.CFrame + Vector3.new(0, 3, 0))
+
+	task.wait(0.2)
+
+	local prompt = recycler:FindFirstChildWhichIsA("ProximityPrompt", true)
+
+	if not prompt then
+		for _, v in ipairs(recycler:GetDescendants()) do
+			if v:IsA("ProximityPrompt") then
+				prompt = v
+				break
+			end
+		end
+	end
+
+	if not prompt then
+		return
+	end
+
+	local backpack = Player:WaitForChild("Backpack")
+	local char = Player.Character
+
+	for _, tool in ipairs(backpack:GetChildren()) do
+		if not running then return end
+
+		if tool:IsA("Tool") then
+			tool.Parent = char
+
+			task.wait(0.1)
+
+			firePrompt(prompt)
+
+			task.wait(0.1)
+		end
+	end
+end
+
+local CHECKPOINT_TAG = "VieteHubCheckpoinTIN"
+
+
+CreateButton("Set Check Point", function()
+	local character = Player.Character or Player.CharacterAdded:Wait()
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	-- Xoá checkpoint cũ
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:GetAttribute(CHECKPOINT_TAG) then
+			obj:Destroy()
+		end
+	end
+
+	-- Tạo checkpoint mới
+	local checkpoint = Instance.new("Part")
+	checkpoint.Name = "Checkpoint"
+
+	checkpoint.Size = Vector3.new(3, 0.5, 3)
+	checkpoint.Anchored = true
+	checkpoint.CanCollide = false
+	checkpoint.Transparency = 0.7
+	checkpoint.Color = Color3.fromRGB(255, 0, 0)
+
+	checkpoint.CFrame = root.CFrame * CFrame.new(0, -3, 0)
+
+	checkpoint:SetAttribute(CHECKPOINT_TAG, true)
+
+	checkpoint.Parent = workspace
+end)
+
+CreateButton("Teleport", function()
+	local checkpoint
+
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:GetAttribute(CHECKPOINT_TAG) then
+			checkpoint = obj
+			break
+		end
+	end
+
+	if not checkpoint then
+		Notify("Chưa Set Checkpoint", "discord.gg/592AGgZHm7", 3)
+		return
+	end
+
+	local character = Player.Character or Player.CharacterAdded:Wait()
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	root.CFrame = checkpoint.CFrame + Vector3.new(0, 3, 0)
+end)
+
+CreateTextBox("Set Speed", function(value)
+	local speed = tonumber(value)
+
+	if speed then
+		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = speed
+	end
+end)
+
+
+local ESPs = {}
+local ESPs2 = {}
+CreateToggle("ESP Monsters", false, function(state)
+	local MonstersFolder = workspace:FindFirstChild("Monsters")
+
+	if state then
+		for _, monster in ipairs(MonstersFolder:GetChildren()) do
+			if not monster:FindFirstChild("ESPHighlight") then
+				local hl = Instance.new("Highlight")
+				hl.Name = "ESPHighlight"
+				hl.FillTransparency = 0.5
+				hl.OutlineTransparency = 0
+				hl.OutlineColor = Color3.fromRGB(255,0,0)
+				hl.Parent = monster
+
+				table.insert(ESPs, hl)
+			end
+		end
+	else
+		for _, esp in ipairs(ESPs) do
+			if esp then
+				esp:Destroy()
+			end
+		end
+		table.clear(ESPs)
+	end
+end)
+
+CreateToggle("ESP Scrap", false, function(state)
+
+	local scrapfolder = workspace.Scraps
+
+	if state then
+		for _, scrapss in ipairs(scrapfolder:GetChildren()) do
+			if scrapss and not scrapss:FindFirstChild("ESPHighlight") then
+				local hl = Instance.new("Highlight")
+				hl.Name = "ESPHighlight"
+				hl.FillTransparency = 0.5
+				hl.OutlineTransparency = 0
+				hl.OutlineColor = Color3.fromRGB(17, 255, 0)
+				hl.Parent = scrapss
+
+				table.insert(ESPs2, hl)
+			end
+		end
+	else
+		for _, esp in ipairs(ESPs2) do
+			if esp then
+				esp:Destroy()
+			end
+		end
+		table.clear(ESPs2)
+	end
+end)
+
+CreateButton("Collect Scrap", function()
+	running = true
+	Notify("Collecting...", "discord.gg/592AGgZHm7", 10)
+	task.spawn(function()
+		removePromptCooldown()
+
+		collectScraps()
+
+		if running then
+			recycleTools()
+		end
+
+		running = false
+		Notify("Sold Successfully", "discord.gg/592AGgZHm7", 3)
+	end)
+end)
+
+local redcard
+local greencard
+local bluecard
+for _, v in pairs(workspace:GetDescendants()) do
+	if v.Name == "Card" then
+		if v.MeshId == "rbxassetid://140693729632443" then
+			redcard = v
+		elseif v.MeshId == "rbxassetid://98759411840543" then
+			bluecard = v
+		elseif v.MeshId == "rbxassetid://88504865884075" then
+			greencard = v
+		end
+	end
+end
+
+CreateButton("Level2", function()
+	local acess
+	for _, g in pairs(workspace.DoorKeyCard:GetDescendants()) do
+		if g.Name == "Acess" then
+			acess = g
+		end
+	end
+	local character = Player.Character or Player.CharacterAdded:Wait()
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	root.CFrame = redcard.CFrame
+	local pp = redcard.ProximityPrompt
+	firePrompt(pp)
+	task.wait(0.2)
+	root.CFrame = acess.CFrame
+	local ppp = acess.ProximityPrompt
+	firePrompt(ppp)
+end)
+
+-- / DRAGGABLE --- - -- -- - - - - - - -- - - --  -- - - 
+local dragging = false
+local dragStart
+local startPos
+local dragInput
+
+local function update(input)
+	local delta = input.Position - dragStart
+
+	MainFrame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+Title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Title.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+		or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
