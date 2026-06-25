@@ -536,11 +536,14 @@ CreateButton("Level2", function()
 
 	root.CFrame = redcard.CFrame
 	local pp = redcard.ProximityPrompt
+	root.Anchored = true
 	firePrompt(pp)
-	task.wait(0.5)
+	firePrompt(pp)
+	firePrompt(pp)
+	firePrompt(pp)
+	task.wait(1)
 	root.CFrame = acess.CFrame
 	local ppp = acess.ProximityPrompt
-	root.Anchored = true
 	firePrompt(ppp)
 	firePrompt(ppp)
 	firePrompt(ppp)
