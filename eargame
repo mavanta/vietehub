@@ -549,11 +549,16 @@ CreateButton("Level2", function()
 	local root = character:WaitForChild("HumanoidRootPart")
 	local Backpack = Player:WaitForChild("Backpack")
 
+	local kC
+
 	repeat
 		root.CFrame = CFrame.new(-11, 280, -74)
+
 		local pp = redcard.ProximityPrompt
 		firePrompt(pp)
-		local kC = Backpack:FindFirstChild("Level2KeyCard")
+
+		kC = Backpack:FindFirstChild("Level2KeyCard")
+
 		task.wait()
 	until kC
 	task.wait(0.5)
