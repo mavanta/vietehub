@@ -551,6 +551,11 @@ CreateButton("Level2", function()
 	root.CFrame = CFrame.new(-11, 280, -74)
 	local pp = redcard.ProximityPrompt
 	firePrompt(pp)
+	firePrompt(pp)
+	firePrompt(pp)
+	firePrompt(pp)
+	firePrompt(pp)
+	firePrompt(pp)
 	task.wait(0.5)
 	root.CFrame = CFrame.new(-55, 280, -266)
 	local ppp = acess.ProximityPrompt
