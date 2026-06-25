@@ -8,6 +8,20 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local UIS = game:GetService("UserInputService")
 
+-- // Prompt CD = 0
+for _, v in ipairs(workspace:GetDescendants()) do
+	if v:IsA("ProximityPrompt") then
+		v.HoldDuration = 0
+	end
+end
+
+workspace.DescendantAdded:Connect(function(v)
+	if v:IsA("ProximityPrompt") then
+		v.HoldDuration = 0
+	end
+end)
+
+
 local ScrapCount = 0
 --// GUI
 
@@ -538,8 +552,8 @@ CreateButton("Level2", function()
 	local pp = redcard.ProximityPrompt
 	firePrompt(pp)
 	task.wait(0.5)
-	root.CFrame = acess.CFrame
-	local ppp = CFrame.new(-55, 280, -266)
+	root.CFrame = CFrame.new(-55, 280, -266)
+	local ppp = acess.ProximityPrompt
 	firePrompt(ppp)
 end)
 
