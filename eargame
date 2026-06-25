@@ -534,21 +534,13 @@ CreateButton("Level2", function()
 	local character = Player.Character or Player.CharacterAdded:Wait()
 	local root = character:WaitForChild("HumanoidRootPart")
 
-	root.CFrame = redcard.CFrame
+	root.CFrame = CFrame.new(-11, 280, -74)
 	local pp = redcard.ProximityPrompt
-	root.Anchored = true
 	firePrompt(pp)
-	firePrompt(pp)
-	firePrompt(pp)
-	firePrompt(pp)
-	task.wait(1)
+	task.wait(0.5)
 	root.CFrame = acess.CFrame
-	local ppp = acess.ProximityPrompt
+	local ppp = CFrame.new(-55, 280, -266)
 	firePrompt(ppp)
-	firePrompt(ppp)
-	firePrompt(ppp)
-	firePrompt(ppp)
-	root.Anchored = false
 end)
 
 -- / DRAGGABLE --- - -- -- - - - - - - -- - - --  -- - - 
