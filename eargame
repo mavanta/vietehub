@@ -557,10 +557,8 @@ CreateButton("Level2", function()
 		local pp = redcard.ProximityPrompt
 		firePrompt(pp)
 
-		kC = Backpack:FindFirstChild("Level2KeyCard")
-
 		task.wait()
-	until kC
+	until Backpack:FindFirstChild("Level2KeyCard")
 	task.wait(0.5)
 	root.CFrame = CFrame.new(-55, 280, -266)
 	local ppp = acess.ProximityPrompt
